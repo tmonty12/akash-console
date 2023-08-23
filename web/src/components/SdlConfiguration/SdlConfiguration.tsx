@@ -10,7 +10,7 @@ import {
   LinearProgress,
   Slide,
   Stack,
-  Typography,
+  Typography
 } from '@mui/material';
 import { Field } from 'formik';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -31,6 +31,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { HttpOptions } from './HttpOptions';
 import { useRpcNode } from '../../hooks/useRpcNode';
 import { Gpu } from './Gpu';
+import { FineTuneModel } from './FineTuneModel';
 
 interface SdlConfigurationProps {
   actionItems?: () => React.ReactNode;
@@ -41,6 +42,7 @@ interface SdlConfigurationProps {
   progressVisible?: boolean;
   cardMessage?: string | undefined;
   onSave: (sdl: any) => void;
+  folderName?: string;
 }
 
 export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({
@@ -52,6 +54,7 @@ export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({
   progressVisible,
   cardMessage,
   onSave,
+  folderName
 }) => {
   const [getRpcNode] = useRpcNode();
   const forbidEditing = configurationType === SdlConfigurationType.Update;
@@ -125,6 +128,9 @@ export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({
                   <InfoIcon />
                 </Tooltip>
               </ToolTipTitleWrapper>
+              {(folderName && folderName == 'finetune') && (
+                <FineTuneModel />
+              )}
               {sdl.deployment &&
                 Object.keys(sdl.deployment)?.map((serviceName, index) => {
                   const placement = Object.keys(sdl.deployment[serviceName])[0];
@@ -139,7 +145,7 @@ export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({
                   }
 
                   return (
-                    <AppAccordion key={serviceName} className="p-2">
+                    <AppAccordion key={serviceName} className="p-2" >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography>{capitalize(serviceName)}</Typography>
                       </AccordionSummary>
@@ -151,7 +157,7 @@ export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({
                             flexDirection: 'column',
                           }}
                         >
-                          <h1 className="font-medium ">Image</h1>
+                          <h1 className="font-medium">Image</h1>
                           <Image currentProfile={serviceName} />
 
                           <ToolTipTitleWrapper>
@@ -268,6 +274,8 @@ const InputField = styled(Input)`
 `;
 
 const AppAccordion = styled(Accordion)`
+  margin: 0px !important;
+  
   box-shadow: none;
 
   & .${accordionClasses.expanded} {
@@ -303,3 +311,4 @@ const ToolTipTitleWrapper = styled.div`
   font-weight: bold;
   border-radius: 8px 8px 0 0;
 `;
+

@@ -12,6 +12,7 @@ import { Template } from '../components/SdlConfiguration/settings';
 import { WalletDeployButtons } from '../components/WalletDeployButton';
 import { fetchSdlList, fetchTemplateList } from '../recoil/api/sdl';
 import { templateIcons } from '../assets/templates';
+import { aiModelDirectoryConfig, aiModelTemplateListConfig, TemplateListConfig, DirectoryConfig } from '../AI-Model-Metadata/aiModel';
 
 type SocialNetwork = {
   socialNetwork: string;
@@ -26,33 +27,52 @@ export interface SelectAppProps {
 
 export default function SelectApp(props: SelectAppProps): JSX.Element {
   const { folderName, onNextButtonClick, setFieldValue } = props;
-  const { data: directoryConfig } = useQuery(['sdlList', { folderName }], fetchSdlList, {
+  const { data: directoryConfigQuery } = useQuery(['sdlList', { folderName }], fetchSdlList, {
     refetchOnWindowFocus: false,
     keepPreviousData: true,
   });
 
-  const [selectedSdl, setSelectedSdl] = useState<Template>(
-    directoryConfig?.topology?.topologyList?.find(
-      (topology: any) => topology.title === directoryConfig?.topology?.selected
-    )
-  );
+  const [selectedSdl, setSelectedSdl] = useState<Template>({
+    title: '',
+    description: '',
+    url: ''
+  });
 
-  const { data: templateListConfig } = useQuery('templateList', fetchTemplateList, {
+  const { data: templateListConfigQuery } = useQuery('templateList', fetchTemplateList, {
     refetchOnWindowFocus: false,
     keepPreviousData: true,
   });
 
   const [social, setSocial] = useState<SocialNetwork[]>([]);
+  const [templateListConfig, setTemplateListConfig] = useState<TemplateListConfig>({ tiles: [] });
+  const [directoryConfig, setDirectoryConfig] = useState<DirectoryConfig>({ topology: { selected: '', topologyList: [] }, title: {
+    description: '',
+    logo: '',
+    name: '',
+  }});
 
   useEffect(() => {
-    setSelectedSdl(
-      directoryConfig?.topology?.topologyList?.find(
-        (topology: any) => topology.title === directoryConfig?.topology?.selected
-      )
-    );
+    let sdl = directoryConfig?.topology?.topologyList?.find(
+      (topology: any) => topology.title === directoryConfig?.topology?.selected
+    )
+
+    setSelectedSdl(sdl ? sdl : { description: '', title: '', url: '' });
   }, [directoryConfig]);
 
   useEffect(() => {
+    if (folderName == 'finetune') {
+      setTemplateListConfig(aiModelTemplateListConfig);
+      setDirectoryConfig(aiModelDirectoryConfig);
+    } else {
+      setTemplateListConfig(templateListConfigQuery);
+      setDirectoryConfig(directoryConfigQuery)
+
+      let sdl = directoryConfig?.topology?.topologyList?.find(
+        (topology: any) => topology.title === directoryConfig?.topology?.selected
+      )
+      setSelectedSdl(sdl ? sdl : { description: '', title: '', url: '' });
+    }
+
     const result = [];
 
     if (directoryConfig?.topology?.social) {

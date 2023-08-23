@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { Template } from '../components/Template';
 import { Button } from '@mui/material';
@@ -10,6 +11,8 @@ import { HelpCenterSDL } from '../components/HelpCenter/HelpCenterSDL';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useQuery } from 'react-query';
 import { templateIcons } from '../assets/templates';
+import { aiModelTemplateListConfig, TemplateListConfig, Tile } from '../AI-Model-Metadata/aiModel'
+import { te } from 'date-fns/locale';
 
 const DocumentIcon = () => <img src={Document} alt="Document Icon" />;
 
@@ -32,13 +35,23 @@ export default function FeaturedApps({
   const [reviewSdl, showSdlReview] = useState(false);
   const closeReviewModal = useCallback(() => showSdlReview(false), []);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
-  const { data: templateListConfig } = useQuery('templateList', fetchTemplateList, {
+  const { data: templateListConfigQuery } = useQuery('templateList', fetchTemplateList, {
     refetchOnWindowFocus: false,
     keepPreviousData: true,
   });
+  const [templateListConfig, setTemplateListConfig] = useState<TemplateListConfig>({tiles:[]})
+  const location = useLocation();
 
   const toggleHelpCenter = useCallback(() => {
     setIsHelpCenterOpen((prevIsOpen) => !prevIsOpen);
+  }, []);
+
+  React.useEffect(() => {
+    if (location.pathname == '/landing/ai-model') {
+      setTemplateListConfig(aiModelTemplateListConfig)
+    } else {
+      setTemplateListConfig(templateListConfigQuery)
+    }
   }, []);
 
   return (

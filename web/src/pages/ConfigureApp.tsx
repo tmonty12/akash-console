@@ -11,6 +11,8 @@ import { useQuery } from 'react-query';
 import { fetchSdlList } from '../recoil/api/sdl';
 import { Icon } from '../components/Icons';
 import { isSDLSpec } from '../components/SdlConfiguration/settings';
+import { DirectoryConfig, aiModelDirectoryConfig } from '../AI-Model-Metadata/aiModel';
+import { llama2SDL } from '../AI-Model-Metadata/deployments/llama2';
 
 interface ConfigureAppProps {
   onNextButtonClick: any;
@@ -32,15 +34,28 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
   const closeReviewModal = useCallback(() => showSdlReview(false), []);
   const form = useFormikContext() as any;
 
-  const { data: directoryConfig } = useQuery(['sdlList', { folderName }], fetchSdlList, {
+  const { data: directoryConfigQuery } = useQuery(['sdlList', { folderName }], fetchSdlList, {
     refetchOnWindowFocus: false,
     keepPreviousData: true,
   });
+  const [directoryConfig, setDirectoryConfig] = useState<DirectoryConfig>({ topology: { selected: '', topologyList: [] }, title: {
+    description: '',
+    logo: '',
+    name: '',
+  }});
 
   const handleSave = (sdl: any) => {
     // Update the form values with the saved SDL
     form.setFieldValue('sdl', sdl);
   };
+
+  useEffect(() => {
+    if (folderName == 'finetune') {
+      setDirectoryConfig(aiModelDirectoryConfig);
+    } else {
+      setDirectoryConfig(directoryConfigQuery);
+    }
+  },[])
 
   useEffect(() => {
     // don't override the value if it's already set
@@ -50,16 +65,27 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
       (template: any) => template.title.toLowerCase() === templateId
     );
 
-    axios
-      .get(template.url)
-      .then((resp) => yaml.load(resp.data))
-      .then((sdl) => {
-        if (isSDLSpec(sdl)) {
-          form.setFieldValue('sdl', transformSdl(sdl));
-        } else {
-          console.error('Template is not a valid SDL spec');
+    if (template) {
+      if (folderName == 'finetune') {
+        // TO DO: change llama2SDL file to yaml file
+        // TO DO: logic should be able to handle multiple deployments from AI Model dir
+        const sdlYaml = yaml.load(llama2SDL);
+        if (isSDLSpec(sdlYaml)) {
+          form.setFieldValue('sdl', transformSdl(sdlYaml))
         }
-      });
+      } else {
+        axios
+          .get(template.url)
+          .then((resp) => yaml.load(resp.data))
+          .then((sdl) => {
+            if (isSDLSpec(sdl)) {
+              form.setFieldValue('sdl', transformSdl(sdl));
+            } else {
+              console.error('Template is not a valid SDL spec');
+            }
+          });
+      }
+    }
   }, [directoryConfig, templateId, form]);
 
   // prevent exception on initial load
@@ -76,6 +102,7 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
       progressVisible={progressVisible}
       cardMessage={cardMessage}
       onSave={handleSave} // Add the onSave prop
+      folderName={folderName}
       actionItems={() => (
         <DeploymentAction>
           <Button variant="outlined" onClick={() => showSdlReview(true)}>

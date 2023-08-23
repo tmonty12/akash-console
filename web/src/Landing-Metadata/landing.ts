@@ -66,8 +66,8 @@ export const metadata: Metadata = {
         title: 'Deploy an AI/ ML Model',
         description:
           'Popular AI & ML models, deployed in just a few clicks. Includes Stable Diffusion, GPT4All, Alpaca and more.',
-        buttonText: 'Coming Soon',
-        route: '',
+        buttonText: 'Choose a Template',
+        route: '/landing/ai-model',
         icon: 'electronicsChip',
         image: img3,
         buttonEnabled: true,
