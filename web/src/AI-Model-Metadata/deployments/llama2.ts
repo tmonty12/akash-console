@@ -2,40 +2,46 @@ export const llama2SDL = `---
 version: "2.0"
 
 services:
-  tetris:
-    image: bsord/tetris
+  llama2agora:
+    image: ishandhanani/llama2:latest
+    env:
+        - HUGGING_FACE_TOKEN=
+    command:
+        - "sh"
+        - "-c"
+    args:
+        - 'python3 agora_python_bot.py --s3_bucket= --data_set= --model=llama2'
     expose:
-      - port: 80
+      - port: 8000
         as: 80
         to:
           - global: true
 
 profiles:
   compute:
-    tetris:
+    llama2agora:
       resources:
         cpu:
-          units: 1.0
+          units: 8
         memory:
-          size: 512Mi
+          size: 50Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
         storage:
-          size: 512Mi
+          - size: 40Gi
   placement:
     akash:
-      attributes:
-        host: akash
-      signedBy:
-        anyOf:
-          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
-          - "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"
       pricing:
-        tetris:
+        llama2agora: 
           denom: uakt
-          amount: 10000
+          amount: 100000
 
 deployment:
-  tetris:
+  llama2agora:
     akash:
-      profile: tetris
+      profile: llama2agora
       count: 1
 `
