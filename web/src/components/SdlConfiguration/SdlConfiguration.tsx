@@ -128,7 +128,7 @@ export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({
                   <InfoIcon />
                 </Tooltip>
               </ToolTipTitleWrapper>
-              {(folderName && folderName == 'finetune') && (
+              {(folderName && folderName == 'llm') && (
                 <FineTuneModel serviceName={Object.keys(sdl.services)[0]}/>
               )}
               {sdl.deployment &&

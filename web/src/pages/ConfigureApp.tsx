@@ -12,7 +12,7 @@ import { fetchSdlList } from '../recoil/api/sdl';
 import { Icon } from '../components/Icons';
 import { isSDLSpec } from '../components/SdlConfiguration/settings';
 import { DirectoryConfig, aiModelDirectoryConfig } from '../AI-Model-Metadata/aiModel';
-import { llama2SDL } from '../AI-Model-Metadata/deployments/llama2';
+import { finetuneSDL } from '../AI-Model-Metadata/deployments/finetune';
 
 interface ConfigureAppProps {
   onNextButtonClick: any;
@@ -50,7 +50,8 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
   };
 
   useEffect(() => {
-    if (folderName == 'finetune') {
+    console.log(folderName)
+    if (folderName == 'llm') {
       setDirectoryConfig(aiModelDirectoryConfig);
     } else {
       setDirectoryConfig(directoryConfigQuery);
@@ -66,10 +67,10 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
     );
 
     if (template) {
-      if (folderName == 'finetune') {
+      if (folderName == 'llm') {
         // TO DO: change llama2SDL file to yaml file
         // TO DO: logic should be able to handle multiple deployments from AI Model dir
-        const sdlYaml = yaml.load(llama2SDL);
+        const sdlYaml = yaml.load(finetuneSDL);
         if (isSDLSpec(sdlYaml)) {
           form.setFieldValue('sdl', transformSdl(sdlYaml))
         }

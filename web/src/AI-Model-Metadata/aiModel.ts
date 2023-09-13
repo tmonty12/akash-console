@@ -59,12 +59,12 @@ export const aiModelTemplateListConfig: TemplateListConfig = {
       {
         buttonState: true,
         buttonText: 'Deploy Now',
-        description: 'Finetune a state of the art LLM model such as LLaMa 2 with your own dataset.',
+        description: 'Finetune or deploy a state of the art LLM model such as LLaMa 2.',
         logo: '',
         logoFileNameWithoutExt: 'finetune',
-        name: 'finetune',
+        name: 'LLM',
         targetDeployTemplate: '',
-        title: 'Finetune Model'
+        title: 'Large Language Model'
       }
     ],
     version: '0.0.1'
@@ -81,8 +81,8 @@ export const aiModelDirectoryConfig: DirectoryConfig = {
         selected: '',
         topologyList: [
                 {
-                    description: 'Fine tune on Meta\'s open sourced state of the art LLaMa 2 model ',
-                    title: 'LLaMa 2',
+                    description: 'Fine tune an open source LLM with your own dataset.',
+                    title: 'Finetune',
                     url: ''
                 }
         ],

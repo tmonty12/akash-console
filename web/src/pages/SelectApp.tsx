@@ -60,7 +60,7 @@ export default function SelectApp(props: SelectAppProps): JSX.Element {
   }, [directoryConfig]);
 
   useEffect(() => {
-    if (folderName == 'finetune') {
+    if (folderName == 'llm') {
       setTemplateListConfig(aiModelTemplateListConfig);
       setDirectoryConfig(aiModelDirectoryConfig);
     } else {

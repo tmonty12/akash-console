@@ -6,7 +6,9 @@ import {
 import { Field, useFormikContext } from 'formik';
 import styled from '@emotion/styled';
 import { FieldWrapper, Input } from './styling';
-import { ErrorMessageComponent } from '../ErrorMessage';
+import { v4 as uuidv4 } from 'uuid';
+import React from 'react';
+import { String } from 'lodash';
 
 type FineTuneModelProps = {
     serviceName: string;
@@ -15,58 +17,67 @@ type FineTuneModelProps = {
 export const FineTuneModel: React.FC<FineTuneModelProps> = ({
     serviceName
 }) => {
+    const [ jobId, setJobId ] = React.useState<String>('');
     const { setFieldValue, values } = useFormikContext<any>();
 
-    const getArg = (s3Bucket: String, dataSet: String) =>  {
-        return `python3 agora_python_bot.py --s3_bucket=${s3Bucket} --data_set=${dataSet} --model=llama2`;
+    React.useEffect(() => {
+        if (jobId == '') {
+            setJobId(uuidv4());
+        }
+    }, [])
+
+    const getArg = (s3Bucket: String, dataSet: String, model: String) =>  {
+        return `python3 agora_python_bot.py --bucket_name ${s3Bucket} --hf_data_path ${dataSet} --model_name ${model} --jobId ${jobId}`;
     }
     const getS3BucketVal = (arg: String) => {
-        const regex = /--s3_bucket=([^ ]+)/;
+        const regex = /--bucket_name ([^ ]+)/;
         const match = arg.match(regex);
         return match ? match[1] : '';
     }
     const getDataSetVal = (arg: String) => {
-        const regex = /--data_set=([^ ]+)/;
+        const regex = /--hf_data_path ([^ ]+)/;
+        const match = arg.match(regex);
+        return match ? match[1] : '';
+    }
+    const getModelVal= (arg: String) => {
+        const regex = /--model_name ([^ ]+)/;
         const match = arg.match(regex);
         return match ? match[1] : '';
     }
 
     return (
         <FormWrapper className="p-2">
+            <FormTitleTop className="font-medium">Model</FormTitleTop>
+            <FormControlWrapper style={{ marginBottom: '10px'}}>
+                <Field name={`sdl.services.${serviceName}.args.0`}>
+                    {({ field }: { field: { value: string } }) => (
+                        <Select 
+                            value={getModelVal(field.value)}
+                            onChange={(e) => setFieldValue(`sdl.services.${serviceName}.args.0`, getArg(getS3BucketVal(field.value), getDataSetVal(field.value), e.target.value))} 
+                        >
+                            <MenuItem value={'meta-llama/Llama-2-7b-hf'}>LLaMa2 7B</MenuItem>
+                            <MenuItem value={'falcon180b'} disabled>Falcon 180B</MenuItem>
+                            <MenuItem value={'python34b'} disabled>Python 34B</MenuItem>
+                        </Select>
+                    )}
+                </Field>
+            </FormControlWrapper>
             <FormTitleTop className="font-medium">Data Set</FormTitleTop>
             <FormControlWrapper>
                 <Field name={`sdl.services.${serviceName}.args.0`}>
                     {({ field }: { field: { value: string } }) => (
                         <Select 
                             value={getDataSetVal(field.value)}
-                            onChange={(e) => setFieldValue(`sdl.services.${serviceName}.args.0`, getArg(getS3BucketVal(field.value), e.target.value))} 
+                            onChange={(e) => setFieldValue(`sdl.services.${serviceName}.args.0`, getArg(getS3BucketVal(field.value), e.target.value, getModelVal(field.value)))} 
                         >
-                            <MenuItem value={'python_instructions'}>Python Code Instructions</MenuItem>
+                            <MenuItem value={'iamtarun/python_code_instructions_18k_alpaca'}>Python Code Instructions</MenuItem>
                             <MenuItem value={'medical_terms'} disabled>Wiki Medical Terms</MenuItem>
                             <MenuItem value={'medical_dialog'} disabled>Medical Dialog</MenuItem>
                         </Select>
                     )}
                 </Field>
             </FormControlWrapper>
-            <FormTitle className="font-medium">Hugging Face Token</FormTitle>
-            <Field name={`sdl.services.${serviceName}.env.0`}>
-                {({ field, meta }: any ) => (
-                    <FieldWrapperImage>
-                        <InputField
-                            {...field}
-                            error={meta?.error}
-                            value={field.value.split('=')[1]}
-                            onChange={({currentTarget}) => {
-                                const name = field.value.split('=')[0];
-                                const value = currentTarget.value;
-                                setFieldValue(`sdl.services.${serviceName}.env.0`, `${name}=${value}`);
-                            }}
-                        />
-                        {meta?.error && <ErrorMessageComponent>{meta?.error}</ErrorMessageComponent>}
-                    </FieldWrapperImage>
-                )}
-            </Field>
-            <FormTitle className="font-medium">S3 Bucket Name</FormTitle>
+            <FormTitle className="font-medium">Storj Bucket Name</FormTitle>
             <Field name={`sdl.services.${serviceName}.args.0`}>
                 {({ field }: { field: { value: string } }) => (
                     <FieldWrapperImage>
@@ -74,7 +85,7 @@ export const FineTuneModel: React.FC<FineTuneModelProps> = ({
                             {...field}
                             value={getS3BucketVal(field.value)}
                             onChange={({currentTarget}) => {
-                                setFieldValue(`sdl.services.${serviceName}.args.0`, getArg(currentTarget.value, getDataSetVal(field.value)));
+                                setFieldValue(`sdl.services.${serviceName}.args.0`, getArg(currentTarget.value, getDataSetVal(field.value), getModelVal(field.value)));
                             }}
                         />
                     </FieldWrapperImage>
