@@ -44,10 +44,10 @@ interface SdlConfigurationProps {
   onSave: (sdl: any) => void;
   folderName?: string;
   setServiceName?: (serviceName: string) => void;
-  getArg? : (s3Bucket: String, dataSet: String, model: String, noBucket?: boolean) => string;
-  getModelVal? : (arg: String) => String;
-  getS3BucketVal? : (arg : String) => String;
-  getDataSetVal? : (arg: String) => String;
+  getArg? : (s3Bucket: string, dataSet: string, model: string, noBucket?: boolean) => string;
+  getModelVal? : (arg: string) => string;
+  getS3BucketVal? : (arg : string) => string;
+  getDataSetVal? : (arg: string) => string;
 }
 
 export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({

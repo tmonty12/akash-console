@@ -24,7 +24,7 @@ function getTemplateTypeFromLocation(location: Location) {
 
   return templateMap.get(templateType) || 'nodes';
 }
-import { aiModelTemplateListConfig, TemplateListConfig, Tile } from '../AI-Model-Metadata/aiModel'
+import { aiModelTemplateListConfig, TemplateListConfig, Tile } from '../AI-Model-Metadata/aiModel';
 
 const DocumentIcon = () => <img src={Document} alt="Document Icon" />;
 
@@ -53,7 +53,7 @@ export default function FeaturedApps({
     refetchOnWindowFocus: false,
     keepPreviousData: true,
   });
-  const [templateListConfig, setTemplateListConfig] = useState<TemplateListConfig>({tiles:[]})
+  const [templateListConfig, setTemplateListConfig] = useState<TemplateListConfig>({tiles:[]});
 
   const toggleHelpCenter = useCallback(() => {
     setIsHelpCenterOpen((prevIsOpen) => !prevIsOpen);
@@ -61,10 +61,10 @@ export default function FeaturedApps({
 
   React.useEffect(() => {
     if (location.pathname == '/landing/ml-deployment') {
-      templateListConfigQuery.tiles.push(aiModelTemplateListConfig.tiles[0])
-      setTemplateListConfig(templateListConfigQuery)
+      templateListConfigQuery.tiles.push(aiModelTemplateListConfig.tiles[0]);
+      setTemplateListConfig(templateListConfigQuery);
     } else {
-      setTemplateListConfig(templateListConfigQuery)
+      setTemplateListConfig(templateListConfigQuery);
     }
   }, []);
 

@@ -52,4 +52,4 @@ deployment:
     akash:
       profile: finetune
       count: 1
-`
+`;

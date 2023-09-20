@@ -1,4 +1,4 @@
-import { Template } from "../components/SdlConfiguration/settings";
+import { Template } from '../components/SdlConfiguration/settings';
 
 export interface Tile {
     buttonState?: boolean;
@@ -68,7 +68,7 @@ export const aiModelTemplateListConfig: TemplateListConfig = {
       }
     ],
     version: '0.0.1'
-}
+};
 
 export const aiModelDirectoryConfig: DirectoryConfig = {
     bannerColor: '',
@@ -88,4 +88,4 @@ export const aiModelDirectoryConfig: DirectoryConfig = {
         ],
         version: '0.0.1'
     },
-}
+};

@@ -10,10 +10,10 @@ import React from 'react';
 
 type FineTuneModelProps = {
     serviceName: string;
-    getArg : (s3Bucket: String, dataSet: String, model: String, noBucket?: boolean) => string;
-    getModelVal : (arg: String) => String;
-    getS3BucketVal : (arg : String) => any;
-    getDataSetVal : (arg: String) => String;
+    getArg : (s3Bucket: string, dataSet: string, model: string, noBucket?: boolean) => string;
+    getModelVal : (arg: string) => string;
+    getS3BucketVal : (arg : string) => any;
+    getDataSetVal : (arg: string) => string;
 };
 
 export const FineTuneModel: React.FC<FineTuneModelProps> = ({
@@ -74,25 +74,25 @@ export const FineTuneModel: React.FC<FineTuneModelProps> = ({
               </Field>
         </FormWrapper>
     );
-}
+};
 
 const FormControlWrapper = styled(FormControl)`
     width: 50%;
-`
+`;
 
 const FormTitleTop = styled.h1`
     padding: 0px 10px 10px;
-`
+`;
 
 const FormTitle = styled.h1`
     padding: 10px;
-`
+`;
 
 const FormWrapper = styled.div`
   box-shadow: none;
   background-color: #ffff;
   padding: 0px 16px 16px;
-`
+`;
 
 const FieldWrapperImage = styled(FieldWrapper)`
   display: flex;

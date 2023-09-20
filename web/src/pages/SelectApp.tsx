@@ -52,9 +52,9 @@ export default function SelectApp(props: SelectAppProps): JSX.Element {
   }});
 
   useEffect(() => {
-    let sdl = directoryConfig?.topology?.topologyList?.find(
+    const sdl = directoryConfig?.topology?.topologyList?.find(
       (topology: any) => topology.title === directoryConfig?.topology?.selected
-    )
+    );
 
     setSelectedSdl(sdl ? sdl : { description: '', title: '', url: '' });
   }, [directoryConfig]);
@@ -65,11 +65,11 @@ export default function SelectApp(props: SelectAppProps): JSX.Element {
       setDirectoryConfig(aiModelDirectoryConfig);
     } else {
       setTemplateListConfig(templateListConfigQuery);
-      setDirectoryConfig(directoryConfigQuery)
+      setDirectoryConfig(directoryConfigQuery);
 
-      let sdl = directoryConfig?.topology?.topologyList?.find(
+      const sdl = directoryConfig?.topology?.topologyList?.find(
         (topology: any) => topology.title === directoryConfig?.topology?.selected
-      )
+      );
       setSelectedSdl(sdl ? sdl : { description: '', title: '', url: '' });
     }
 

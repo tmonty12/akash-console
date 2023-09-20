@@ -32,7 +32,7 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
 }) => {
   const [reviewSdl, showSdlReview] = useState(false);
   const [serviceName, setServiceName] = useState('');
-  const [jobId, setJobId ] = React.useState<String>('');
+  const [jobId, setJobId ] = React.useState<string>('');
   // prevent function being recreated on state change
   const closeReviewModal = useCallback(() => showSdlReview(false), []);
   const form = useFormikContext() as any;
@@ -52,7 +52,7 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
     form.setFieldValue('sdl', sdl);
   };
 
-  const getArg = (s3Bucket: String, dataSet: String, model: String, noBucket: boolean = false) =>  {
+  const getArg = (s3Bucket: string, dataSet: string, model: string, noBucket=false) =>  {
     if (jobId == '') {
       setJobId(uuidv4());
     }
@@ -60,23 +60,23 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
       return `python3 src/finetune_inference_flow.py --hf_data_path ${dataSet} --model_name ${model} --jobId ${jobId}`;
     }
     return `python3 src/finetune_inference_flow.py --bucket_name ${s3Bucket} --hf_data_path ${dataSet} --model_name ${model} --jobId ${jobId}`;
-  }
-  const getRegexMatch = (str: String, regex: RegExp) => {
+  };
+  const getRegexMatch = (str: string, regex: RegExp) => {
     const match = str.match(regex);
     return match ? match[1] : '';
-  }
-  const getS3BucketVal = (arg: String) => {
+  };
+  const getS3BucketVal = (arg: string) => {
       return getRegexMatch(arg, /--bucket_name ([^ ]+)/);
-  }
-  const getDataSetVal = (arg: String) => {
+  };
+  const getDataSetVal = (arg: string) => {
       return getRegexMatch(arg, /--hf_data_path ([^ ]+)/);
-  }
-  const getModelVal= (arg: String) => {
+  };
+  const getModelVal= (arg: string) => {
       return getRegexMatch(arg, /--model_name ([^ ]+)/);
-  }
-  const getJobId = (arg: String) => {
+  };
+  const getJobId = (arg: string) => {
     return getRegexMatch(arg, /--job_id ([^ ]+)/);
-  }
+  };
 
   useEffect(() => {
     if (folderName == 'agora') {
@@ -87,7 +87,7 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
     } else {
       setDirectoryConfig(directoryConfigQuery);
     }
-  },[])
+  },[]);
 
   useEffect(() => {
     // don't override the value if it's already set
@@ -103,7 +103,7 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
         // TO DO: logic should be able to handle multiple deployments from AI Model dir
         const sdlYaml = yaml.load(finetuneSDL);
         if (isSDLSpec(sdlYaml)) {
-          form.setFieldValue('sdl', transformSdl(sdlYaml))
+          form.setFieldValue('sdl', transformSdl(sdlYaml));
         }
       } else {
         axios
@@ -154,7 +154,6 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
               let arg = form.values.sdl.services[serviceName].args[0];
               setJobId(getJobId(arg) == '' ? uuidv4() : getJobId(arg));
               if (getS3BucketVal(arg) == '') {
-                console.log(getS3BucketVal(arg))
                 arg = getArg('', getDataSetVal(arg), getModelVal(arg), true);
                 console.log(arg);
               } else {
