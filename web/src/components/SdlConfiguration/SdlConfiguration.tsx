@@ -10,7 +10,7 @@ import {
   LinearProgress,
   Slide,
   Stack,
-  Typography,
+  Typography
 } from '@mui/material';
 import { Field } from 'formik';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -31,6 +31,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { HttpOptions } from './HttpOptions';
 import { useRpcNode } from '../../hooks/useRpcNode';
 import { Gpu } from './Gpu';
+import { FineTuneModel } from './FineTuneModel';
 
 interface SdlConfigurationProps {
   actionItems?: () => React.ReactNode;
@@ -41,6 +42,12 @@ interface SdlConfigurationProps {
   progressVisible?: boolean;
   cardMessage?: string | undefined;
   onSave: (sdl: any) => void;
+  folderName?: string;
+  setServiceName?: (serviceName: string) => void;
+  getArg? : (s3Bucket: String, dataSet: String, model: String, noBucket?: boolean) => string;
+  getModelVal? : (arg: String) => String;
+  getS3BucketVal? : (arg : String) => String;
+  getDataSetVal? : (arg: String) => String;
 }
 
 export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({
@@ -52,6 +59,12 @@ export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({
   progressVisible,
   cardMessage,
   onSave,
+  folderName,
+  setServiceName,
+  getArg,
+  getModelVal,
+  getS3BucketVal,
+  getDataSetVal,
 }) => {
   const [getRpcNode] = useRpcNode();
   const forbidEditing = configurationType === SdlConfigurationType.Update;
@@ -59,6 +72,10 @@ export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({
 
   // hide the GPU section for now
   const showGpu = false;
+  
+  if (setServiceName) {
+    setServiceName(Object.keys(sdl.services)[0]);
+  }
 
   return (
     <React.Fragment>
@@ -128,6 +145,20 @@ export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({
                   <InfoIcon />
                 </Tooltip>
               </ToolTipTitleWrapper>
+              {(folderName && 
+                folderName == 'agora' && 
+                getArg && 
+                getModelVal && 
+                getS3BucketVal && 
+                getDataSetVal) && (
+                <FineTuneModel 
+                  serviceName={Object.keys(sdl.services)[0]}
+                  getArg={getArg}
+                  getModelVal={getModelVal}
+                  getS3BucketVal={getS3BucketVal}
+                  getDataSetVal={getDataSetVal}
+                />
+              )}
               {sdl.deployment &&
                 Object.keys(sdl.deployment)?.map((serviceName, index) => {
                   const placement = Object.keys(sdl.deployment[serviceName])[0];
@@ -142,7 +173,7 @@ export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({
                   }
 
                   return (
-                    <AppAccordion key={serviceName} className="p-2">
+                    <AppAccordion key={serviceName} className="p-2" >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography>{capitalize(serviceName)}</Typography>
                       </AccordionSummary>
@@ -154,7 +185,7 @@ export const SdlConfiguration: React.FC<SdlConfigurationProps> = ({
                             flexDirection: 'column',
                           }}
                         >
-                          <h1 className="font-medium ">Image</h1>
+                          <h1 className="font-medium">Image</h1>
                           <Image currentProfile={serviceName} />
 
                           <ToolTipTitleWrapper>
@@ -271,6 +302,8 @@ const InputField = styled(Input)`
 `;
 
 const AppAccordion = styled(Accordion)`
+  margin: 0px !important;
+  
   box-shadow: none;
 
   & .${accordionClasses.expanded} {
@@ -306,3 +339,4 @@ const ToolTipTitleWrapper = styled.div`
   font-weight: bold;
   border-radius: 8px 8px 0 0;
 `;
+

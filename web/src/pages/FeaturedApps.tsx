@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useLocation, Location } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { Template } from '../components/Template';
 import { Button } from '@mui/material';
@@ -10,7 +11,6 @@ import { HelpCenterSDL } from '../components/HelpCenter/HelpCenterSDL';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useQuery } from 'react-query';
 import { templateIcons } from '../assets/templates';
-import { useLocation, Location } from 'react-router-dom';
 
 function getTemplateTypeFromLocation(location: Location) {
   const templateMap = new Map([
@@ -24,6 +24,7 @@ function getTemplateTypeFromLocation(location: Location) {
 
   return templateMap.get(templateType) || 'nodes';
 }
+import { aiModelTemplateListConfig, TemplateListConfig, Tile } from '../AI-Model-Metadata/aiModel'
 
 const DocumentIcon = () => <img src={Document} alt="Document Icon" />;
 
@@ -48,13 +49,23 @@ export default function FeaturedApps({
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
   const location = useLocation();
   const templateType = getTemplateTypeFromLocation(location);
-  const { data: templateListConfig } = useQuery(['templateList', templateType], fetchTemplateList, {
+  const { data: templateListConfigQuery } = useQuery(['templateList', templateType], fetchTemplateList, {
     refetchOnWindowFocus: false,
     keepPreviousData: true,
   });
+  const [templateListConfig, setTemplateListConfig] = useState<TemplateListConfig>({tiles:[]})
 
   const toggleHelpCenter = useCallback(() => {
     setIsHelpCenterOpen((prevIsOpen) => !prevIsOpen);
+  }, []);
+
+  React.useEffect(() => {
+    if (location.pathname == '/landing/ml-deployment') {
+      templateListConfigQuery.tiles.push(aiModelTemplateListConfig.tiles[0])
+      setTemplateListConfig(templateListConfigQuery)
+    } else {
+      setTemplateListConfig(templateListConfigQuery)
+    }
   }, []);
 
   return (
