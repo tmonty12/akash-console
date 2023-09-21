@@ -60,13 +60,13 @@ export default function FeaturedApps({
   }, []);
 
   React.useEffect(() => {
-    if (location.pathname == '/landing/ml-deployment') {
+    if (location.pathname == '/landing/ml-deployment' && templateListConfigQuery) {
       templateListConfigQuery.tiles.push(aiModelTemplateListConfig.tiles[0]);
       setTemplateListConfig(templateListConfigQuery);
     } else {
       setTemplateListConfig(templateListConfigQuery);
     }
-  }, []);
+  }, [templateListConfigQuery]);
 
   return (
     <div className="container akt-card">
