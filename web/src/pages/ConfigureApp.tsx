@@ -23,6 +23,10 @@ interface ConfigureAppProps {
   cardMessage?: string | undefined;
 }
 
+type ScriptArgs = {
+  [key: string] : string;
+}
+
 export const ConfigureApp: React.FC<ConfigureAppProps> = ({
   onNextButtonClick,
   folderName,
@@ -33,6 +37,9 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
   const [reviewSdl, showSdlReview] = useState(false);
   const [serviceName, setServiceName] = useState('');
   const [jobId, setJobId ] = React.useState<string>('');
+  const [finetuneJobState, setFinetuneJobState] = useState<ScriptArgs>({
+    'job_id': uuidv4()
+  });
   // prevent function being recreated on state change
   const closeReviewModal = useCallback(() => showSdlReview(false), []);
   const form = useFormikContext() as any;
@@ -52,15 +59,27 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
     form.setFieldValue('sdl', sdl);
   };
 
-  const getArg = (s3Bucket: string, dataSet: string, model: string, noBucket=false) =>  {
-    if (jobId == '') {
-      setJobId(uuidv4());
+  const getArg = (s3Bucket: string, dataSet: string, model: string, submission=false) =>  {
+    // 1) User selects model or data set or enters bucket name - should be reflected in the arg
+    // 2) User adds their own option - should be updated in internal state for when user performs 1)
+
+    let arg = '';
+    if (submission ) {
+      arg = 'python3 src/finetune_inference_flow.py';
+      if (s3Bucket != '') arg += ` --bucket_name ${s3Bucket}`;
+      if (dataSet != '') arg += ` --hf_data_path ${dataSet}`;
+      if (model != '') arg += ` --model_name ${model}`;
+    } else {
+      arg = `python3 src/finetune_inference_flow.py --bucket_name ${s3Bucket} --hf_data_path ${dataSet} --model_name ${model}`;
     }
-    if (noBucket) {
-      return `python3 src/finetune_inference_flow.py --hf_data_path ${dataSet} --model_name ${model} --jobId ${jobId}`;
+    
+    for (const option in finetuneJobState) {
+      arg += ` --${option} ${finetuneJobState[option]}`;
     }
-    return `python3 src/finetune_inference_flow.py --bucket_name ${s3Bucket} --hf_data_path ${dataSet} --model_name ${model} --jobId ${jobId}`;
+
+    return arg;
   };
+
   const getRegexMatch = (str: string, regex: RegExp) => {
     const match = str.match(regex);
     return match ? match[1] : '';
@@ -74,16 +93,33 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
   const getModelVal= (arg: string) => {
       return getRegexMatch(arg, /--model_name ([^ ]+)/);
   };
-  const getJobId = (arg: string) => {
-    return getRegexMatch(arg, /--job_id ([^ ]+)/);
-  };
+
+  useEffect(() => {
+    // Strictly for the agora finetune pipeline.
+    // Responsible for capturing extra script arguments outside of the default ones
+    // so that updating the arg with getArg includes the additional args
+    if (folderName == 'agora' && form && form.values.sdl && form.values.sdl.services[serviceName]) {
+      const pattern = /--(\w+)\s([^\s]+)/g;
+      
+      const args: ScriptArgs = {};
+      const defaultOptions  = ['model_name', 'hf_data_path', 'bucket_name'];
+      let match;
+      while ((match = pattern.exec(form.values.sdl.services[serviceName].args[0]))!= null) {
+        if (!defaultOptions.includes(match[1])) {
+          args[match[1]] = match[2];
+        }
+      }
+      // If user removes the job_id, we want to make sure we add the job_id back
+      if (!('job_id' in args)) {
+        args['job_id'] = finetuneJobState.job_id;
+      }
+      setFinetuneJobState(args);
+    }
+  }, [form]);
 
   useEffect(() => {
     if (folderName == 'agora') {
       setDirectoryConfig(aiModelDirectoryConfig);
-      if (jobId == '') {
-        setJobId(uuidv4());
-      }
     } else {
       setDirectoryConfig(directoryConfigQuery);
     }
@@ -149,19 +185,15 @@ export const ConfigureApp: React.FC<ConfigureAppProps> = ({
           <Button
             variant="contained"
             onClick={() => {
-              // this needs to be done  to ensure the DeploymentStepper params
-              // are correct so that the active index (e.g. activeStep) is correct
+              
+              // 
               let arg = form.values.sdl.services[serviceName].args[0];
-              setJobId(getJobId(arg) == '' ? uuidv4() : getJobId(arg));
-              if (getS3BucketVal(arg) == '') {
-                arg = getArg('', getDataSetVal(arg), getModelVal(arg), true);
-                console.log(arg);
-              } else {
-                arg = getArg('', getDataSetVal(arg), getModelVal(arg));
-              }
+              arg = getArg(getS3BucketVal(arg), getDataSetVal(arg), getModelVal(arg), true);
               console.log(arg);
               form.setFieldValue(`sdl.services.${serviceName}.args.0`, arg);
 
+              // this needs to be done  to ensure the DeploymentStepper params
+              // are correct so that the active index (e.g. activeStep) is correct
               return onNextButtonClick('preflight-check');
             }}
           >

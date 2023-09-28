@@ -3,7 +3,7 @@ version: "2.0"
 
 services:
   finetune:
-    image: tmontfort/finetune:inference-v1.1
+    image: tmontfort/finetune:inference-v1.4
     env:
         - HUGGING_FACE_TOKEN=
         - ACCESS_KEY_ID=
@@ -15,8 +15,8 @@ services:
     args:
         - 'python3 src/finetune_inference_flow.py --bucket_name  --hf_data_path  --model_name  --job_id '
     expose:
-      - port: 8000
-        as: 80
+      - port: 7860
+        as: 8080
         to:
           - global: true
 
@@ -25,9 +25,9 @@ profiles:
     finetune:
       resources:
         cpu:
-          units: 4
+          units: 8
         memory:
-          size: 8Gi
+          size: 16Gi
         gpu:
           units: 1
           attributes:
